@@ -3,35 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Key Generator</title>
+  <title>Generate API Key</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #333;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <h1>API Key Generator</h1>
-  <form id="generateForm">
-    <label for="apikey">Masukkan API Key Baru:</label>
-    <input type="text" id="apikey" name="apikey" required />
-    <button type="submit">Buat API Key</button>
-  </form>
-
-  <p id="result"></p>
+  <div class="container">
+    <h1>Generate API Key</h1>
+    <button id="generateButton">Buat API Key</button>
+    <div id="result"></div>
+  </div>
 
   <script>
-    document.getElementById('generateForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const apiKey = document.getElementById('apikey').value;
+    document.getElementById('generateButton').addEventListener('click', () => {
+      // Fungsi untuk membuat API key secara acak
+      const generateApiKey = () => {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let apiKey = '';
+        for (let i = 0; i < 40; i++) {
+          apiKey += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return apiKey;
+      };
 
-      const response = await fetch('/api/create-key', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apikey: apiKey })
-      });
+      // Buat API key baru
+      const newApiKey = generateApiKey();
 
-      const result = await response.json();
-      if (response.ok) {
-        document.getElementById('result').textContent = `API Key berhasil dibuat: ${result.apikey}`;
-      } else {
-        document.getElementById('result').textContent = `Error: ${result.error}`;
-      }
+      // Tampilkan hasil di halaman
+      document.getElementById('result').textContent = `API Key baru Anda: ${newApiKey}`;
     });
   </script>
 </body>
