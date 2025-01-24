@@ -1,82 +1,38 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buat API Key</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    h1 {
-      color: #333;
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-    }
-    input {
-      padding: 8px;
-      margin-bottom: 20px;
-      width: 200px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 15px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    .message {
-      margin-top: 20px;
-    }
-  </style>
+  <title>API Key Generator</title>
 </head>
 <body>
+  <h1>API Key Generator</h1>
+  <form id="generateForm">
+    <label for="apikey">Masukkan API Key Baru:</label>
+    <input type="text" id="apikey" name="apikey" required />
+    <button type="submit">Buat API Key</button>
+  </form>
 
-  <h1>Buat API Key</h1>
-  <p>Masukkan ID Pengguna (user ID) untuk membuat API key.</p>
-
-  <label for="userId">User ID:</label>
-  <input type="text" id="userId" placeholder="Masukkan user ID">
-
-  <button onclick="createApiKey()">Buat API Key</button>
-
-  <div class="message" id="message"></div>
+  <p id="result"></p>
 
   <script>
-    async function createApiKey() {
-      const userId = document.getElementById("userId").value;
-      const messageDiv = document.getElementById("message");
+    document.getElementById('generateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const apiKey = document.getElementById('apikey').value;
 
-      if (!userId) {
-        messageDiv.innerHTML = "<p style='color: red;'>User ID tidak boleh kosong.</p>";
-        return;
+      const response = await fetch('/api/create-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apikey: apiKey })
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        document.getElementById('result').textContent = `API Key berhasil dibuat: ${result.apikey}`;
+      } else {
+        document.getElementById('result').textContent = `Error: ${result.error}`;
       }
-
-      try {
-        const response = await fetch(`/api/create-apikey?userId=${userId}`, {
-          method: 'POST',
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          messageDiv.innerHTML = `<p style="color: green;">API key berhasil dibuat!<br><strong>User ID:</strong> ${data.userId}<br><strong>API Key:</strong> ${data.apikey}</p>`;
-        } else {
-          messageDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
-        }
-      } catch (error) {
-        messageDiv.innerHTML = "<p style='color: red;'>Terjadi kesalahan saat membuat API key.</p>";
-      }
-    }
+    });
   </script>
-
 </body>
 </html>
