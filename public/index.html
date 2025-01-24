@@ -1,29 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Key Authentication</title>
+  <title>Buat API Key</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input {
+      padding: 8px;
+      margin-bottom: 20px;
+      width: 200px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .message {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>API Key Management</h1>
-  
-  <div>
-    <h2>Get API Key</h2>
-    <button id="getApiKey">Get API Key</button>
-    <p>API Key: <span id="apiKey">None</span></p>
-  </div>
 
-  <div>
-    <h2>Validate API Key</h2>
-    <form id="validateForm">
-      <label for="apiKeyInput">Enter API Key:</label>
-      <input type="text" id="apiKeyInput" placeholder="Enter API Key" required />
-      <button type="submit">Validate API Key</button>
-    </form>
-    <p>Response: <span id="apiResponse">None</span></p>
-  </div>
+  <h1>Buat API Key</h1>
+  <p>Masukkan ID Pengguna (user ID) untuk membuat API key.</p>
 
-  <script src="script.js"></script>
+  <label for="userId">User ID:</label>
+  <input type="text" id="userId" placeholder="Masukkan user ID">
+
+  <button onclick="createApiKey()">Buat API Key</button>
+
+  <div class="message" id="message"></div>
+
+  <script>
+    async function createApiKey() {
+      const userId = document.getElementById("userId").value;
+      const messageDiv = document.getElementById("message");
+
+      if (!userId) {
+        messageDiv.innerHTML = "<p style='color: red;'>User ID tidak boleh kosong.</p>";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/create-apikey?userId=${userId}`, {
+          method: 'POST',
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          messageDiv.innerHTML = `<p style="color: green;">API key berhasil dibuat!<br><strong>User ID:</strong> ${data.userId}<br><strong>API Key:</strong> ${data.apikey}</p>`;
+        } else {
+          messageDiv.innerHTML = `<p style="color: red;">${data.error}</p>`;
+        }
+      } catch (error) {
+        messageDiv.innerHTML = "<p style='color: red;'>Terjadi kesalahan saat membuat API key.</p>";
+      }
+    }
+  </script>
+
 </body>
 </html>
