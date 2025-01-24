@@ -1,16 +1,18 @@
 const express = require('express');
-const dotenv = require('dotenv');
 const path = require('path');
 const apiRoutes = require('./routes/api');
-
-dotenv.config();
 const app = express();
-const port = 3000;
 
-app.use(express.json()); // Parsing JSON body
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
-app.use('/api', apiRoutes); // Routing API
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+// Routes
+app.use('/api', apiRoutes);
+
+// Port configuration
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
