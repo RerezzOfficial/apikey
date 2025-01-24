@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Key Management</title>
+  <title>API Key Authentication</title>
 </head>
 <body>
   <h1>API Key Management</h1>
+  
   <div>
     <h2>Get API Key</h2>
     <button id="getApiKey">Get API Key</button>
@@ -14,15 +15,13 @@
   </div>
 
   <div>
-    <h2>Reset API Key</h2>
-    <button id="resetApiKey">Reset API Key</button>
-    <p>New API Key: <span id="newApiKey">None</span></p>
-  </div>
-
-  <div>
-    <h2>Access Secure Data</h2>
-    <button id="accessSecureData">Access Data</button>
-    <p>Response: <span id="secureData">None</span></p>
+    <h2>Test API Example</h2>
+    <form id="exampleForm">
+      <label for="apiKeyInput">Enter API Key:</label>
+      <input type="text" id="apiKeyInput" placeholder="Enter API Key" required />
+      <button type="submit">Test API</button>
+    </form>
+    <p>Response: <span id="apiResponse">None</span></p>
   </div>
 
   <script src="script.js"></script>
