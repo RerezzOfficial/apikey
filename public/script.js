@@ -9,36 +9,29 @@ document.getElementById('getApiKey').addEventListener('click', async () => {
   document.getElementById('apiKey').textContent = data.apiKey || 'Error';
 });
 
-document.getElementById('resetApiKey').addEventListener('click', async () => {
-  const apiKey = document.getElementById('apiKey').textContent;
-  if (apiKey === 'None') {
-    alert('You need an API key first!');
-    return;
-  }
-  const response = await fetch(`${apiBaseUrl}/reset-api-key`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ apiKey }),
-  });
-  const data = await response.json();
-  if (data.apiKey) {
-    document.getElementById('newApiKey').textContent = data.apiKey;
-    document.getElementById('apiKey').textContent = data.apiKey;
-  } else {
-    alert(data.error || 'Error');
-  }
-});
+document.getElementById('exampleForm').addEventListener('submit', async (event) => {
+  event.preventDefault(); // Prevent form submission
+  const apiKey = document.getElementById('apiKeyInput').value;
 
-document.getElementById('accessSecureData').addEventListener('click', async () => {
-  const apiKey = document.getElementById('apiKey').textContent;
-  if (apiKey === 'None') {
-    alert('You need an API key first!');
+  if (!apiKey) {
+    alert('Please enter a valid API Key!');
     return;
   }
-  const response = await fetch(`${apiBaseUrl}/secure-data`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey },
+
+  const response = await fetch(`${apiBaseUrl}/example`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+    },
+    body: JSON.stringify({ testData: 'Hello from client!' }),
   });
-  const data = await response.json();
-  document.getElementById('secureData').textContent = data.data || data.error || 'Error';
+
+  if (response.ok) {
+    const data = await response.json();
+    document.getElementById('apiResponse').textContent = JSON.stringify(data);
+  } else {
+    const errorData = await response.json();
+    document.getElementById('apiResponse').textContent = errorData.error || 'Unknown error';
+  }
 });
