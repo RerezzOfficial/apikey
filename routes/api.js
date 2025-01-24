@@ -26,17 +26,20 @@ router.post('/reset-api-key', (req, res) => {
 
 // Middleware untuk validasi API key
 function validateApiKey(req, res, next) {
-  const apiKey = req.headers['x-api-key'];
+  const apiKey = req.headers['x-api-key']; // Mengambil API key dari header request
   if (apiKeys[apiKey]) {
-    next(); // API key valid
+    next(); // API key valid, lanjutkan request
   } else {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).json({ error: 'Invalid API Key' });
   }
 }
 
-// Route yang membutuhkan validasi API key
-router.get('/secure-data', validateApiKey, (req, res) => {
-  res.json({ data: 'This is secure data' });
+// Contoh endpoint API dengan validasi API key
+router.post('/example', validateApiKey, (req, res) => {
+  res.json({
+    message: 'API Key is valid! You have successfully accessed this endpoint.',
+    yourData: req.body
+  });
 });
 
 module.exports = router;
