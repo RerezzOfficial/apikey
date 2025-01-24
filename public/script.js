@@ -1,5 +1,6 @@
 const apiBaseUrl = '/api';
 
+// Generate API Key
 document.getElementById('getApiKey').addEventListener('click', async () => {
   const response = await fetch(`${apiBaseUrl}/get-api-key`, {
     method: 'POST',
@@ -9,8 +10,9 @@ document.getElementById('getApiKey').addEventListener('click', async () => {
   document.getElementById('apiKey').textContent = data.apiKey || 'Error';
 });
 
-document.getElementById('exampleForm').addEventListener('submit', async (event) => {
-  event.preventDefault(); // Prevent form submission
+// Validate API Key
+document.getElementById('validateForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
   const apiKey = document.getElementById('apiKeyInput').value;
 
   if (!apiKey) {
@@ -18,18 +20,15 @@ document.getElementById('exampleForm').addEventListener('submit', async (event) 
     return;
   }
 
-  const response = await fetch(`${apiBaseUrl}/example`, {
+  const response = await fetch(`${apiBaseUrl}/validate-api-key`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-    },
-    body: JSON.stringify({ testData: 'Hello from client!' }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ apiKey }),
   });
 
   if (response.ok) {
     const data = await response.json();
-    document.getElementById('apiResponse').textContent = JSON.stringify(data);
+    window.location.href = data.redirectUrl; // Redirect if valid
   } else {
     const errorData = await response.json();
     document.getElementById('apiResponse').textContent = errorData.error || 'Unknown error';
