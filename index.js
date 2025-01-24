@@ -1,86 +1,65 @@
 const express = require('express');
-const crypto = require('crypto'); // Untuk membuat API key unik
-const app = express();
+const fs = require('fs');
 const path = require('path');
 
-// Menyajikan file statis dari folder "public"
+const app = express();
+const PORT = 3000;
+
+// Middleware untuk parsing JSON
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Menyajikan file HTML di folder public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Simpan API key di memory untuk sementara
-let userApiKeys = {};
+// Fungsi untuk memuat API key dari file
+const loadApiKeys = () => {
+  const data = fs.readFileSync(path.join(__dirname, 'apikey.json'));
+  const parsed = JSON.parse(data);
+  return parsed.keys;
+};
 
-// Endpoint untuk membuat API key
-app.post('/api/create-apikey', (req, res) => {
-  const userId = req.query.userId;
-  if (!userId) {
-    return res.status(400).json({ error: 'Parameter "userId" tidak ditemukan' });
-  }
+// Fungsi untuk menyimpan API key baru
+const saveApiKey = (newKey) => {
+  const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'apikey.json')));
+  data.keys.push(newKey);
+  fs.writeFileSync(path.join(__dirname, 'apikey.json'), JSON.stringify(data, null, 2));
+};
 
-  // Cek apakah user sudah memiliki API key
-  if (userApiKeys[userId]) {
-    return res.status(200).json({
-      message: 'API key sudah dibuat',
-      apikey: userApiKeys[userId],
-    });
-  }
-
-  // Buat API key baru
-  const apiKey = crypto.randomBytes(20).toString('hex'); // Membuat string random
-  userApiKeys[userId] = apiKey; // Simpan API key berdasarkan userId
-
-  res.status(201).json({
-    message: 'API key berhasil dibuat',
-    userId: userId,
-    apikey: apiKey,
-  });
-});
-
-// Middleware untuk validasi API key
-function validateApiKey(req, res, next) {
+// Endpoint untuk validasi API key
+app.get('/api/turbo', (req, res) => {
   const apiKey = req.query.apikey;
-  if (!apiKey) {
-    return res.status(400).json({ error: 'API key tidak ditemukan' });
+  const message = req.query.message;
+
+  if (!apiKey || !message) {
+    return res.status(400).json({ error: 'API key atau parameter "message" tidak ditemukan' });
   }
 
-  // Cari API key di database
-  const userId = Object.keys(userApiKeys).find(
-    (key) => userApiKeys[key] === apiKey
-  );
-
-  if (!userId) {
+  const validApiKeys = loadApiKeys();
+  if (!validApiKeys.includes(apiKey)) {
     return res.status(403).json({ error: 'API key tidak valid' });
   }
 
-  req.userId = userId; // Tambahkan userId ke request object
-  next();
-}
-
-// Endpoint API dengan validasi API key
-app.get('/api/turbo', validateApiKey, async (req, res) => {
-  try {
-    const message = req.query.message;
-    if (!message) {
-      return res.status(400).json({ error: 'Parameter "message" tidak ditemukan' });
-    }
-    const response = await turbo(message);
-    res.status(200).json({
-      status: 200,
-      creator: "IM-REREZZ",
-      user: req.userId,
-      data: { response },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  // Jika valid, proses permintaan
+  res.status(200).json({
+    status: 200,
+    creator: 'IM-REREZZ',
+    message: `Pesan diterima: ${message}`
+  });
 });
 
-// Fungsi turbo (contoh implementasi)
-async function turbo(message) {
-  return `Hasil dari turbo: ${message}`;
-}
+// Endpoint untuk membuat API key baru
+app.post('/api/create-key', (req, res) => {
+  const newApiKey = req.body.apikey;
+  if (!newApiKey) {
+    return res.status(400).json({ error: 'Parameter "apikey" diperlukan' });
+  }
 
-// Menjalankan server
-const PORT = 3000;
+  saveApiKey(newApiKey);
+  res.status(201).json({ status: 'success', apikey: newApiKey });
+});
+
+// Jalankan server
 app.listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
 });
